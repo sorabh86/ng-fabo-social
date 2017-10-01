@@ -2,12 +2,17 @@
   <div class="col-md-4">
     <div class="well">
       <h4>{{welcomeMsg}}</h4>
+      <div class="form-group" ng-if="isLoggedIn==true">
+        <a href="{{userInfo.link}}" target="_blank">
+          <img ng-src="{{picture}}" alt="user picture" class="img-responsive">
+        </a>
+      </div>
       <div ng-if="isLoggedIn==false">
         <button ng-click="login()" class="btn btn-default">Login</button>
       </div>
       <div ng-if="isLoggedIn==true">
-          <button ng-click="logout()" class="btn btn-default">Logout</button>
-        </div>
+        <button ng-click="logout()" class="btn btn-default">Logout</button>
+      </div>
     </div>
     <div ng-if="isLoggedIn==true" class="well">
       <h4>User Info</h4>
@@ -20,21 +25,41 @@
         <li><strong>Locale</strong>: {{userInfo.locale}}</li>
       </ul>
     </div>
-    <div class="well">
+    <div ng-if="isLoggedIn==true" class="well">
       <h4>Permission</h4>
       <ul>
-        <li></li>
+        <li ng-repeat="permission in permissions"><strong>{{permission.permission}}</strong>: {{permission.status}}</li>
       </ul>
     </div>
   </div>
-  <div class="col-md-8">
+  <div class="col-md-8" ng-show="isLoggedIn==true">
     <h3>Welcome to Facebook!</h3>
-    <form>
+    
+    <div class="alert alert-info" ng-if="msg">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      {{msg}}
+    </div>
+    
+    <form ng-submit="postStatus()">
       <div class="form-group">
         <label>Status Update</label>
-        <textarea class="form-control"></textarea>
+        <textarea ng-model="myPost" class="form-control"></textarea>
       </div>
-      <button type="submit" class="btn btn-default">Submit</button>
+      <div class="form-group">
+        <button type="submit" class="btn btn-default">Submit</button>
+      </div>
     </form>
+  
+    <div ng-repeat="post in posts" class="panel panel-default">
+      <div class="panel-heading">
+        <img ng-src="{{picture}}">
+      </div>
+      <div class="panel-body">
+         {{post.message}}
+         <br>
+         <span class="text-muted">{{post.created_time}}</span>
+      </div>
+    </div>
+    
   </div>
 </div>

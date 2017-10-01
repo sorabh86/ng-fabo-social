@@ -12,7 +12,7 @@ angular.module('fbApp.facebook', ['ngRoute', 'ngFacebook'])
 
 .config(['$facebookProvider', function($facebookProvider){
   $facebookProvider.setAppId('1524257504303217');
-  $facebookProvider.setPermissions("email","public_profile","user_posts","publish_actions","user_photos");
+  $facebookProvider.setPermissions("email, public_profile, user_posts, publish_actions, user_photos");
 }])
 
 .run(function($rootScope){
@@ -41,15 +41,38 @@ angular.module('fbApp.facebook', ['ngRoute', 'ngFacebook'])
       refresh();
     });
   };
+  $scope.postStatus = function() {
+    if($scope.myPost) var myPost = $scope.myPost; else var myPost = null;
+
+    console.log($scope.myPost);
+    $facebook.api('/me/feed', 'post',{message:myPost}).then(function(res){
+      console.log(res);
+      $scope.msg = 'Thanks for Posting!!!';
+      $scope.myPost = undefined;
+      refresh();
+    });
+  };
 
   function refresh() {
-    $facebook.api("/me?fields=id,name,first_name,last_name,email,gender,locale").then(function(res){
+    $facebook.api("/me", {
+      fields:'id,name,first_name,last_name,email,gender,locale,picture,link'
+    }).then(function(res){
       $scope.welcomeMsg = 'Welcome '+res.name;
       $scope.isLoggedIn = true;
       $scope.userInfo = res;
-      console.log($scope.userInfo);
+      $scope.picture = res.picture.data.url;
+
+      $facebook.api('/me/permissions').then(function(res){
+        $scope.permissions= res.data;
+        console.log('permissions:', $scope.permissions);
+
+        $facebook.api('/me/posts').then(function(res){
+          $scope.posts = res.data;
+        });
+      });
+      console.log('userInfo',$scope.userInfo);
     }, function(err){
-      $scope.welcomeMsg = 'Please Login'
+      $scope.welcomeMsg = 'Please Login';
     });
   }
 
